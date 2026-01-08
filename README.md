@@ -1,21 +1,24 @@
+# Experiments with tofu
 
+Here's tofu in a podman from scratch with alpine (we didn't end up using this, but wanted to see how it went, may come back to this later)
 ![tofu](./tofu.gif)
 
-Ok some notes:
+# Notes and Experiments
 
-** NOTES
+Here we are going to use two machines, an OSX laptop (midnight) and a linux server running Fedora 43 (linuxmini), the reason for this is linuxmini is going to take the place of a cloud provider to be able to start and stop and fiddle with remote machine images.  The howto for tofu and incus is here, we are using v1.0.2
 
-Allow an OSX to talk to a linux container system to start and stop OpenTofu images the easy way:
+https://search.opentofu.org/provider/lxc/incus/latest
+
+
+So, let's allow an OSX to talk to a linux container system to start and stop OpenTofu images the easy way:
 
 Fedora needs a tweak for idmaps, this seems specific to fedora:
-
 ```
 sudo dnf install uidmap shadow-utils
 sudo echo "root:1000000:1000000000" | sudo tee -a /etc/subuid /etc/subgid
 ```
 
-Also, double check you can start an instance locally first:
-
+Also, double check you can start an instance locally on `linuxmini` first:
 ```
 jcuff@linuxmini:~$ incus launch images:ubuntu/22.04 test
 Launching test
@@ -29,7 +32,6 @@ jcuff@linuxmini:~$ incus list
 
 
 First set up incus trust mechanisms:
-
 ```
 jcuff@midnight tofu % incus remote add linuxmini
 Generating a client certificate. This may take a minute...
@@ -37,27 +39,23 @@ Certificate fingerprint: e3a30.....
 ok (y/n/[fingerprint])? y
 ```
 
-now log in to the remote incus server and run:
-
+Now log in to the remote incus server at `linuxmini` and run:
 ```
 jcuff@linuxmini:~$ incus config trust add midnight
 ```
 
-back on the client run:
-
+Back on the client `midnight` run this and cut and paste the token (giant ass string) that we generated from `incus config trust add midnight` above.
 ```
 Trust token for linuxmini: eyJjbGllbnRf....
 Client certificate now trusted by server: linuxmini
 ```
 
 Then you can switch remotes:
-
 ```
 jcuff@midnight ~ % incus list
 This client hasn't been configured to use a remote server yet.
 As your platform can't run native Linux instances, you must connect to a remote server.
 If you already added a remote server, make it the default with "incus remote switch NAME".
-
 
 jcuff@midnight ~ % incus remote switch linuxmini 
 jcuff@midnight ~ % incus list                   
@@ -67,8 +65,7 @@ jcuff@midnight ~ % incus list
 jcuff@midnight ~ % 
 ```
 
-Homebrew:
-
+Use homebrew to quickly install on OSX `midnight`:
 ```
 jcuff@midnight tofu % brew update
 jcuff@midnight tofu % brew install opentofu
@@ -80,8 +77,7 @@ jcuff@midnight tofu % brew install opentofu
 
 ```
 
-Then switch into the cluster directory:
-
+Then switch into the cluster directory, init tofu:
 ```
 jcuff@midnight tofu.github % cd cluster 
 jcuff@midnight cluster % vi main.tf
@@ -97,8 +93,7 @@ Initializing provider plugins...
 OpenTofu has been successfully initialized!
 ```
 
-You can plan and apply an install:
-
+You can now plan and apply an install method from `main.tf`:
 ```
 jcuff@midnight cluster % tofu apply
 
@@ -114,8 +109,7 @@ Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 
 ```
 
-and finally confirm remote is running with tofu provisioned start:
-
+and finally confirm remote is running with tofu provisioned start by using regular incus commands:
 ```
 jcuff@midnight cluster % incus list
 +----------+---------+------+------------------------------------------------+-----------+-----------+
@@ -125,3 +119,5 @@ jcuff@midnight cluster % incus list
 +----------+---------+------+------------------------------------------------+-----------+-----------+
 jcuff@midnight cluster % 
 ```
+
+Right - what next?  ;-)
