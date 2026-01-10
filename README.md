@@ -44,7 +44,7 @@ Now log in to the remote incus server at `linuxmini` and run:
 jcuff@linuxmini:~$ incus config trust add midnight
 ```
 
-Back on the client `midnight` run this and cut and paste the token (giant ass string) that we generated from `incus config trust add midnight` above.
+Back on the client `midnight` paste the ascii token from linuxmini (that giant ass string) into the prompt waiting for the token:
 ```
 Trust token for linuxmini: eyJjbGllbnRf....
 Client certificate now trusted by server: linuxmini
@@ -121,3 +121,8 @@ jcuff@midnight cluster %
 ```
 
 Right - what next?  ;-)
+
+This is fun, let's look at this next...
+
+https://github.com/lxc/incus-deploy 
+
